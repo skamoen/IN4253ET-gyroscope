@@ -1,52 +1,82 @@
 package nl.tudelft.superevilhackinglab;
 
-import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
-import android.view.View;
-import android.view.Menu;
-import android.view.MenuItem;
+        import android.app.Activity;
+        import android.hardware.Sensor;
+        import android.hardware.SensorEvent;
+        import android.hardware.SensorEventListener;
+        import android.hardware.SensorManager;
+        import android.os.Bundle;
+        import android.widget.TextView;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends Activity implements SensorEventListener
+{
+    //a TextView
+    private TextView gyroData0;
+    private TextView gyroData1;
+    private TextView gyroData2;
+    private TextView gyroData3;
+    //the Sensor Manager
+    private SensorManager sManager;
 
+    /** Called when the activity is first created. */
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+        //get the TextView from the layout file
+        gyroData0 = (TextView) findViewById(R.id.gyroData0);
+        gyroData1 = (TextView) findViewById(R.id.gyroData1);
+        gyroData2 = (TextView) findViewById(R.id.gyroData2);
+        gyroData3 = (TextView) findViewById(R.id.gyroData3);
+
+        //get a hook to the sensor service
+        sManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+    }
+
+    //when this Activity starts
+    @Override
+    protected void onResume()
+    {
+        super.onResume();
+        /*register the sensor listener to listen to the gyroscope sensor, use the
+        callbacks defined in this class, and gather the sensor information as quick
+        as possible*/
+        sManager.registerListener(this, sManager.getDefaultSensor(Sensor.TYPE_ORIENTATION),SensorManager.SENSOR_DELAY_FASTEST);
+    }
+
+    //When this Activity isn't visible anymore
+    @Override
+    protected void onStop()
+    {
+        //unregister the sensor listener
+        sManager.unregisterListener(this);
+        super.onStop();
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
+    public void onAccuracyChanged(Sensor arg0, int arg1)
+    {
+        //Do nothing.
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+    public void onSensorChanged(SensorEvent event)
+    {
+        //if sensor is unreliable, return void
+        if (event.accuracy == SensorManager.SENSOR_STATUS_UNRELIABLE)
+        {
+            return;
         }
 
-        return super.onOptionsItemSelected(item);
+        //else it will output the Roll, Pitch and Yawn values
+        gyroData0.setText(Float.toString(event.values[0]));
+        gyroData1.setText(Float.toString(event.values[1]));
+        gyroData2.setText(Float.toString(event.values[2]));
+
+        double relative = Math.sqrt(Math.pow(event.values[0], 2) + Math.pow(event.values[1], 2) + Math.pow(event.values[2], 2));
+        gyroData3.setText(Double.toString(relative));
+
     }
 }
