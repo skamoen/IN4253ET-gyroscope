@@ -24,6 +24,7 @@ public class MainActivity extends Activity implements SensorEventListener
     private TextView gyroData1;
     private TextView gyroData2;
     private TextView gyroData3;
+    private TextView deviceInfo;
     //the Sensor Manager
     private SensorManager sManager;
 
@@ -44,7 +45,14 @@ public class MainActivity extends Activity implements SensorEventListener
         gyroData1 = (TextView) findViewById(R.id.gyroData1);
         gyroData2 = (TextView) findViewById(R.id.gyroData2);
         gyroData3 = (TextView) findViewById(R.id.gyroData3);
+        deviceInfo = (TextView) findViewById(R.id.deviceInfo);
 
+        String OSver = System.getProperty("os.version") + "(" + android.os.Build.VERSION.INCREMENTAL + ")";
+        String ApiLevel = android.os.Build.VERSION.SDK_INT + "";
+        String Device = android.os.Build.DEVICE;
+        String Model = android.os.Build.MODEL + " ("+ android.os.Build.PRODUCT + ")";
+
+        deviceInfo.setText(Device+" - "+Model);
         //get a hook to the sensor service
         sManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 
