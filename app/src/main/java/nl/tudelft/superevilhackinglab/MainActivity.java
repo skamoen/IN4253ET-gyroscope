@@ -3,6 +3,7 @@ package nl.tudelft.superevilhackinglab;
         import android.app.Activity;
         import android.app.KeyguardManager;
         import android.content.Context;
+        import android.content.Intent;
         import android.hardware.Sensor;
         import android.hardware.SensorEvent;
         import android.hardware.SensorEventListener;
@@ -71,7 +72,8 @@ public class MainActivity extends Activity implements SensorEventListener
 
         KM = (KeyguardManager) context.getSystemService(Context.KEYGUARD_SERVICE);
 
-
+        Intent intent = new Intent(this, BackgroundListenerService.class);
+        startService(intent);
 
     }
 
