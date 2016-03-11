@@ -40,7 +40,6 @@ public class MainActivity extends Activity implements SensorEventListener
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Log.d("cek","test");
         //get the TextView from the layout file
         gyroData0 = (TextView) findViewById(R.id.gyroData0);
         gyroData1 = (TextView) findViewById(R.id.gyroData1);
@@ -57,7 +56,8 @@ public class MainActivity extends Activity implements SensorEventListener
         //get a hook to the sensor service
         sManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 
-
+/*
+MOVED TO SERVICE
         context = getApplicationContext();
         //activate the file writer, prepare the folder and file
         File path = new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/gyro");
@@ -79,10 +79,9 @@ public class MainActivity extends Activity implements SensorEventListener
         }
 
         KM = (KeyguardManager) context.getSystemService(Context.KEYGUARD_SERVICE);
-
+*/
         Intent intent = new Intent(this, BackgroundListenerService.class);
         startService(intent);
-
     }
 
     //when this Activity starts
@@ -103,14 +102,15 @@ public class MainActivity extends Activity implements SensorEventListener
         //unregister the sensor listener
         sManager.unregisterListener(this);
         super.onStop();
-
+    /*
+    MOVED TO SERVICE
         //close the file writer
         try {
             stream.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
-
+    */
     }
 
     @Override
@@ -143,6 +143,8 @@ public class MainActivity extends Activity implements SensorEventListener
         String gData3 = Double.toString(relative);
         gyroData3.setText(gData3);
 
+    /*
+    MOVED TO SERVICE
         //write the data to the file
         try {
             int c_time = (int) System.currentTimeMillis();
@@ -152,6 +154,6 @@ public class MainActivity extends Activity implements SensorEventListener
         }catch (Exception e){
            e.printStackTrace();
         }
-
+    */
     }
 }

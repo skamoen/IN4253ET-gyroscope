@@ -1,5 +1,6 @@
 package nl.tudelft.superevilhackinglab;
 
+import android.app.KeyguardManager;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -26,6 +27,7 @@ public class BackgroundListenerService extends Service implements SensorEventLis
     private SensorManager sManager;
     private Context context;
     private FileOutputStream stream;
+    KeyguardManager KM;
 
     @Nullable
     @Override
@@ -34,10 +36,12 @@ public class BackgroundListenerService extends Service implements SensorEventLis
     }
 
     public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.d("cek", "the service has been running");
         Toast.makeText(this, "service starting", Toast.LENGTH_SHORT).show();
         //get a hook to the sensor service
         sManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 
+        KM = (KeyguardManager) context.getSystemService(Context.KEYGUARD_SERVICE);
         context = getApplicationContext();
         //activate the file writer, prepare the folder and file
         File path = new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/gyro");
@@ -97,10 +101,17 @@ public class BackgroundListenerService extends Service implements SensorEventLis
 
         //write the data to the file
         try {
+
+            String isLock = "NO";
+            if(KM.inKeyguardRestrictedInputMode()){
+                isLock = "YES";
+                Log.d("cek","it is locked");
+            }
+
             int c_time = (int) System.currentTimeMillis();
-            String gyro_record = String.valueOf(c_time)+";"+gData0+";"+gData1+";"+gData2+";"+gData3+"\n";
+            String gyro_record = String.valueOf(c_time)+";"+gData0+";"+gData1+";"+gData2+";"+gData3+";"+isLock+"\n";
+            Log.d("cekrecord",gyro_record);
             stream.write(gyro_record.getBytes());
-            Log.d("testing", gyro_record);
         }catch (Exception e){
             e.printStackTrace();
         }
