@@ -11,10 +11,12 @@ import android.hardware.SensorManager;
 import android.os.Environment;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.widget.Toast;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
@@ -52,7 +54,7 @@ public class BackgroundListenerService extends Service implements SensorEventLis
 
         //activate the file writer, prepare the folder and file
         path = new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/gyro");
-/*
+
         File userinfo_file = new File(path,"device_info.txt");
         try {
             if(!path.exists()){
@@ -63,25 +65,25 @@ public class BackgroundListenerService extends Service implements SensorEventLis
                 FileOutputStream dstream;
                 dstream = new FileOutputStream(userinfo_file);
 
+//                TelephonyManager tm = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+//                String DeviceID = tm.getDeviceId();
 
                 String OSver = System.getProperty("os.version") + "(" + android.os.Build.VERSION.INCREMENTAL + ")";
                 String ApiLevel = android.os.Build.VERSION.SDK_INT + "";
                 String Device = android.os.Build.DEVICE;
                 String Model = android.os.Build.MODEL + " ("+ android.os.Build.PRODUCT + ")";
 
-
-                dstream.write(OSver.getBytes());
-                dstream.write(ApiLevel.getBytes());
-                dstream.write(Device.getBytes());
-                dstream.write(Model.getBytes());
+//                dstream.write((DeviceID+"\n").getBytes());
+                dstream.write((OSver+"\n").getBytes());
+                dstream.write((ApiLevel+"\n").getBytes());
+                dstream.write((Device+"\n").getBytes());
+                dstream.write((Model+"\n").getBytes());
                 dstream.close();
             }
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
-*/
+
         /*register the sensor listener to listen to the gyroscope sensor, use the
         callbacks defined in this class, and gather the sensor information as quick
         as possible*/
