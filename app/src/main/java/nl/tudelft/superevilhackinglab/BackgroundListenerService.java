@@ -65,15 +65,15 @@ public class BackgroundListenerService extends Service implements SensorEventLis
                 FileOutputStream dstream;
                 dstream = new FileOutputStream(userinfo_file);
 
-//                TelephonyManager tm = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
-//                String DeviceID = tm.getDeviceId();
+                TelephonyManager tm = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+                String DeviceID = tm.getDeviceId();
 
                 String OSver = System.getProperty("os.version") + "(" + android.os.Build.VERSION.INCREMENTAL + ")";
                 String ApiLevel = android.os.Build.VERSION.SDK_INT + "";
                 String Device = android.os.Build.DEVICE;
                 String Model = android.os.Build.MODEL + " ("+ android.os.Build.PRODUCT + ")";
 
-//                dstream.write((DeviceID+"\n").getBytes());
+                dstream.write((DeviceID+"\n").getBytes());
                 dstream.write((OSver+"\n").getBytes());
                 dstream.write((ApiLevel+"\n").getBytes());
                 dstream.write((Device+"\n").getBytes());
