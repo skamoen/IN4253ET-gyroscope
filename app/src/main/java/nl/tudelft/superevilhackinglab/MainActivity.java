@@ -82,6 +82,8 @@ MOVED TO SERVICE
 */
         Intent intent = new Intent(this, BackgroundListenerService.class);
         startService(intent);
+
+        Utils.postToServer("http://httpbin.org/post", "testKey", "testvalue");
     }
 
     //when this Activity starts
