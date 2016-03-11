@@ -15,7 +15,6 @@ import android.util.Log;
 import android.widget.Toast;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
@@ -28,6 +27,8 @@ public class BackgroundListenerService extends Service implements SensorEventLis
     private Context context;
     private FileOutputStream stream;
     KeyguardManager KM;
+    private boolean isPrevLocked;
+    File path;
 
     @Nullable
     @Override
@@ -41,27 +42,46 @@ public class BackgroundListenerService extends Service implements SensorEventLis
         //get a hook to the sensor service
         sManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 
-        KM = (KeyguardManager) context.getSystemService(Context.KEYGUARD_SERVICE);
         context = getApplicationContext();
+        KM = (KeyguardManager) context.getSystemService(Context.KEYGUARD_SERVICE);
+
+        // initiate lockstate
+        isPrevLocked = KM.inKeyguardRestrictedInputMode();
+
+
+
         //activate the file writer, prepare the folder and file
-        File path = new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/gyro");
-        File file = new File(path,"gyro_data.txt");
+        path = new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/gyro");
+/*
+        File userinfo_file = new File(path,"device_info.txt");
         try {
             if(!path.exists()){
                 path.mkdir();
             }
-            if(!file.exists()) {
-                file.createNewFile();
-            }
-            stream = new FileOutputStream(file);
+            if(!userinfo_file.exists()) {
+                userinfo_file.createNewFile();
+                FileOutputStream dstream;
+                dstream = new FileOutputStream(userinfo_file);
 
-            //stream.close();
+
+                String OSver = System.getProperty("os.version") + "(" + android.os.Build.VERSION.INCREMENTAL + ")";
+                String ApiLevel = android.os.Build.VERSION.SDK_INT + "";
+                String Device = android.os.Build.DEVICE;
+                String Model = android.os.Build.MODEL + " ("+ android.os.Build.PRODUCT + ")";
+
+
+                dstream.write(OSver.getBytes());
+                dstream.write(ApiLevel.getBytes());
+                dstream.write(Device.getBytes());
+                dstream.write(Model.getBytes());
+                dstream.close();
+            }
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
-
+*/
         /*register the sensor listener to listen to the gyroscope sensor, use the
         callbacks defined in this class, and gather the sensor information as quick
         as possible*/
@@ -90,6 +110,33 @@ public class BackgroundListenerService extends Service implements SensorEventLis
             return;
         }
 
+        if(!KM.inKeyguardRestrictedInputMode()){
+            if(isPrevLocked){
+                isPrevLocked = false;
+                Log.d("ceklock","it is unlocked");
+                try {
+                    stream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            return;
+        }
+
+        int c_time = (int) System.currentTimeMillis();
+
+        if(!isPrevLocked){
+            isPrevLocked = true;
+            Log.d("ceklock","it is locked");
+            File gyro_file = new File(path,"gyro_"+c_time+".txt");
+
+            try {
+                gyro_file.createNewFile();
+                stream = new FileOutputStream(gyro_file);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
         //else it will output the Roll, Pitch and Yawn values
 
         String gData0 = Float.toString(event.values[0]);
@@ -101,17 +148,9 @@ public class BackgroundListenerService extends Service implements SensorEventLis
 
         //write the data to the file
         try {
+                String gyro_record = String.valueOf(c_time)+";"+gData0+";"+gData1+";"+gData2+";"+gData3+";"+"\n";
+                stream.write(gyro_record.getBytes());
 
-            String isLock = "NO";
-            if(KM.inKeyguardRestrictedInputMode()){
-                isLock = "YES";
-                Log.d("cek","it is locked");
-            }
-
-            int c_time = (int) System.currentTimeMillis();
-            String gyro_record = String.valueOf(c_time)+";"+gData0+";"+gData1+";"+gData2+";"+gData3+";"+isLock+"\n";
-            Log.d("cekrecord",gyro_record);
-            stream.write(gyro_record.getBytes());
         }catch (Exception e){
             e.printStackTrace();
         }
