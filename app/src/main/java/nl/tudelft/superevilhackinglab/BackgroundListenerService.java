@@ -2,8 +2,10 @@ package nl.tudelft.superevilhackinglab;
 
 import android.app.KeyguardManager;
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -27,10 +29,15 @@ public class BackgroundListenerService extends Service implements SensorEventLis
 
     private SensorManager sManager;
     private Context context;
+    File gyro_file;
     private FileOutputStream stream;
     KeyguardManager KM;
+
     private boolean isPrevLocked;
+    private boolean isPrevScreenOn;
+    private boolean isRecording = false;
     File path;
+    private final BroadcastReceiver BCReceiver = new BCReceiver();
 
     @Nullable
     @Override
@@ -44,17 +51,22 @@ public class BackgroundListenerService extends Service implements SensorEventLis
         //get a hook to the sensor service
         sManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 
+        //create new receiver for screen status
+        final IntentFilter filter = new IntentFilter(Intent.ACTION_SCREEN_ON);
+        filter.addAction(Intent.ACTION_SCREEN_OFF);
+        registerReceiver(BCReceiver, filter);
+
         context = getApplicationContext();
         KM = (KeyguardManager) context.getSystemService(Context.KEYGUARD_SERVICE);
 
-        // initiate lockstate
+        // initiate lockstate & screen state
         isPrevLocked = KM.inKeyguardRestrictedInputMode();
+        isPrevScreenOn = StaticVariables.isScreenOn;
 
-
-
-        //activate the file writer, prepare the folder and file
+        //define the path of the files
         path = new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/gyro");
 
+        //create new file for device info (if it doesn't exist)
         File userinfo_file = new File(path,"device_info.txt");
         try {
             if(!path.exists()){
@@ -96,6 +108,9 @@ public class BackgroundListenerService extends Service implements SensorEventLis
         super.onDestroy();
         //unregister the sensor listener
         sManager.unregisterListener(this);
+
+        unregisterReceiver(BCReceiver);
+
         //close the file writer
         try {
             stream.close();
@@ -112,34 +127,64 @@ public class BackgroundListenerService extends Service implements SensorEventLis
             return;
         }
 
+        //if the device is unlocked, save & close the file.
         if(!KM.inKeyguardRestrictedInputMode()){
             if(isPrevLocked){
                 isPrevLocked = false;
                 Log.d("ceklock","it is unlocked");
-                try {
-                    stream.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
+                if(isRecording) {
+                    try {
+                        Log.d("cekprocess","save file "+gyro_file.getName());
+                        stream.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    isRecording = false;
                 }
             }
+            isPrevScreenOn = StaticVariables.isScreenOn;
             return;
         }
 
+        // now, device is locked!!
+
+       // Log.d("cekstat","recording+ "+isRecording+", prevScreen "+isPrevScreenOn+", screen now "+StaticVariables.isScreenOn);
+
         int c_time = (int) System.currentTimeMillis();
 
+        //changing device state from unlocked to locked
         if(!isPrevLocked){
             isPrevLocked = true;
             Log.d("ceklock","it is locked");
-            File gyro_file = new File(path,"gyro_"+c_time+".txt");
+        }
 
+        //if the device is locked and screen is on, create new file and start recording the data
+        if(!isPrevScreenOn && StaticVariables.isScreenOn && !isRecording) {
+            gyro_file = new File(path, "gyro_" + c_time + ".txt");
             try {
+                Log.d("cekprocess","create new file "+gyro_file.getName());
                 gyro_file.createNewFile();
                 stream = new FileOutputStream(gyro_file);
             } catch (IOException e) {
                 e.printStackTrace();
             }
+            isRecording = true;
+            isPrevScreenOn = true;
+        }else if(isPrevScreenOn && !StaticVariables.isScreenOn && isRecording){
+        //if the screen is off but still recording, stop and delete the file (the user didn't unlock the phone).
+            try {
+                Log.d("cekprocess","delete file "+gyro_file.getName());
+                stream.close();
+                gyro_file.delete();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            isRecording = false;
+            isPrevScreenOn = false;
+            return;
         }
-        //else it will output the Roll, Pitch and Yawn values
+
+        isPrevScreenOn = StaticVariables.isScreenOn;
 
         String gData0 = Float.toString(event.values[0]);
         String gData1 = Float.toString(event.values[1]);
