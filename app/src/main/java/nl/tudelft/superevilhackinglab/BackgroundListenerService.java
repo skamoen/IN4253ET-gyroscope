@@ -150,7 +150,7 @@ public class BackgroundListenerService extends Service implements SensorEventLis
 
        // Log.d("cekstat","recording+ "+isRecording+", prevScreen "+isPrevScreenOn+", screen now "+StaticVariables.isScreenOn);
 
-        int c_time = (int) System.currentTimeMillis();
+        long c_time = System.currentTimeMillis();
 
         //changing device state from unlocked to locked
         if(!isPrevLocked){
@@ -175,7 +175,7 @@ public class BackgroundListenerService extends Service implements SensorEventLis
             try {
                 Log.d("cekprocess","delete file "+gyro_file.getName());
                 stream.close();
-                gyro_file.delete();
+                //gyro_file.delete();
             } catch (IOException e) {
                 e.printStackTrace();
             }
