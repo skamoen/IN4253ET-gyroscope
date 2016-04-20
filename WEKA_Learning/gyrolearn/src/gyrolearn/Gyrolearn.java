@@ -30,6 +30,9 @@ public class Gyrolearn {
     
     public static int data_capacity = 9999;
     
+    public static int margin_front = 10;
+    public static int margin_back = 10;
+    
     
     
     public static Instances loadDataset() throws IOException{
@@ -62,7 +65,7 @@ public class Gyrolearn {
                 if (file.isFile()) {
                     String filename = file.getAbsolutePath();
                     Instances raw = loadData(filename);
-                    Instance record = preProcess(raw,dataset);
+                    Instance record = preProcessTrain(raw);
                     
                     record.setValue(dataset.classAttribute(), cls);
                     
@@ -82,19 +85,17 @@ public class Gyrolearn {
         return data;
     }
     
-    public static Instance preProcess(Instances raw, Instances dataset){
-        
+    public static Instance extractFeatures(Instances raw,int start_index, int end_index){
         Instance output = new DenseInstance(301);
-        output.setDataset(dataset);
         
         ArrayList<Double> delta_yaw = new ArrayList<>();
         ArrayList<Double> delta_pitch = new ArrayList<>();
         ArrayList<Double> delta_roll = new ArrayList<>();
         
-        Instance data_prev_ins = raw.get(10);
+        Instance data_prev_ins = raw.get(start_index);
         String[] data_prev = data_prev_ins.stringValue(0).split(";");
         
-        for (int i=11; i< (raw.size() - 10); i++){
+        for (int i=start_index+1; i<= end_index; i++){
             Instance data_t_ins = raw.get(i);
             String[] data_t = data_t_ins.stringValue(0).split(";");
             delta_yaw.add(Double.parseDouble(data_t[1]) - Double.parseDouble(data_prev[1]));
@@ -103,7 +104,6 @@ public class Gyrolearn {
             data_prev = data_t;
         }
         
-       
         int n = delta_yaw.size();
         for(int time=0; time<100; time++){
             int t = (int)((double)(time/100))*n;
@@ -115,4 +115,36 @@ public class Gyrolearn {
         return output;
     }
     
+    public static Instance preProcessTrain(Instances raw){
+        return extractFeatures(raw,margin_front,raw.size() - margin_back);
+        
+    }
+    
+    public static ArrayList<Instance> preProcessTest(Instances testdata){
+        
+        ArrayList<Instance> output_list = new ArrayList<>();
+        ArrayList<Integer> start_index = new ArrayList<>();
+        ArrayList<Integer> end_index = new ArrayList<>();
+        
+        int n_pin = 4;
+        
+        int data_size = testdata.size()- margin_front - margin_back;
+        
+        //defining starting & ending time index for each pin digit
+        int counter = margin_front+1;
+        for(int p=0; p<n_pin; ++p){
+            start_index.add(counter);
+            counter+= (int) data_size/4;
+            end_index.add(counter);
+        }
+        
+        //extracting the features for each digit
+        for(int p=0; p<n_pin; ++p){
+            Instance single_digit = extractFeatures(testdata, start_index.get(p), end_index.get(p));
+            output_list.add(single_digit);
+        }
+        
+        return output_list;
+    }
+	
 }

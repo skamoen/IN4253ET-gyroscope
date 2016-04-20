@@ -11,11 +11,16 @@ import weka.classifiers.AbstractClassifier;
 import weka.classifiers.Classifier;
 import weka.classifiers.Evaluation;
 import weka.classifiers.bayes.NaiveBayes;
-import weka.classifiers.functions.supportVector.Kernel;
+import weka.classifiers.bayes.NaiveBayesMultinomial;
+import weka.classifiers.functions.MultilayerPerceptron;
+import weka.classifiers.functions.SMO;
 import weka.core.Instance;
 import weka.core.Instances;
 
 import weka.classifiers.functions.supportVector.Kernel;
+import weka.classifiers.pmml.consumer.SupportVectorMachineModel;
+import weka.classifiers.trees.J48;
+import weka.core.WekaPackageManager;
 
 
 /**
@@ -35,6 +40,8 @@ public class Main {
         Evaluation eval = new Evaluation(dataset);
         eval.crossValidateModel(classifier, dataset, 10, new Random());
         System.out.println("Estimated Accuracy: "+Double.toString(eval.pctCorrect()));
+        
+        
         
         
     }
