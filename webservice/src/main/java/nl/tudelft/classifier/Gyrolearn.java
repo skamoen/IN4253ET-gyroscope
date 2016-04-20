@@ -55,7 +55,7 @@ public class Gyrolearn {
         Instances dataset = createDataset();
 
         for(String cls: classes){
-            File dir = new File("data/"+cls+"/");
+            File dir = new File("D:/Data/gyro_data/"+cls+"/");
             File[] fileList = dir.listFiles();
 
             for (File file : fileList) {

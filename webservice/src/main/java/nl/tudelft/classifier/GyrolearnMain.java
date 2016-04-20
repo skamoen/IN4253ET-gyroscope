@@ -4,6 +4,7 @@ import java.util.Random;
 import weka.classifiers.AbstractClassifier;
 import weka.classifiers.Evaluation;
 import weka.classifiers.bayes.NaiveBayes;
+import weka.classifiers.trees.J48;
 import weka.core.Instance;
 import weka.core.Instances;
 
@@ -22,7 +23,7 @@ public class GyrolearnMain {
         eval.crossValidateModel(classifier, dataset, 10, new Random());
         System.out.println("Estimated Accuracy: "+Double.toString(eval.pctCorrect()));
 
-        Instances test = Gyrolearn.loadData("data/test/pin1393.txt");
+        Instances test = Gyrolearn.loadData("D:/Data/gyro_data/test/pin1393.txt");
         Gyrolearn.predictPin(classifier,test);
 
 
