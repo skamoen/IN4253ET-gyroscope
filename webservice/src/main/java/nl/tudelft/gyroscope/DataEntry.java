@@ -3,7 +3,6 @@ package nl.tudelft.gyroscope;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.ManyToOne;
 
 /**
  * Created by Sille Kamoen on 7-3-16.
@@ -14,9 +13,6 @@ public class DataEntry {
     @Id
     @GeneratedValue
     Long id;
-
-    @ManyToOne
-    Device device;
 
     String androidId;
 
@@ -39,12 +35,20 @@ public class DataEntry {
         //JPA ONLY
     }
 
-    public Device getDevice() {
-        return device;
+    public Long getId() {
+        return id;
     }
 
-    public void setDevice(Device device) {
-        this.device = device;
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getAndroidId() {
+        return androidId;
+    }
+
+    public void setAndroidId(String androidId) {
+        this.androidId = androidId;
     }
 
     public String getTime() {

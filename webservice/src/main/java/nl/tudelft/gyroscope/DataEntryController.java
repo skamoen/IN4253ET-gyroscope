@@ -24,19 +24,20 @@ public class DataEntryController {
     }
 
     @RequestMapping(method = RequestMethod.POST)
-    ResponseEntity<?> addDataEntry(@RequestBody AndroidDTO androidDTO) {
-        String androidId = androidDTO.getAndroidId();
-        for (GyroDTO dto : androidDTO.getEntries()) {
-            dataRepository.save(new DataEntry(androidId, dto.time, dto.gData0, dto.gData1, dto.gData2, dto.gData3));
+    ResponseEntity<?> addDataEntry(@RequestBody Attempt attempt) {
+        String androidId = attempt.getAndroidId();
+        for (GyroDTO dto : attempt.getEntries()) {
+            dataRepository.save(new DataEntry(androidId, dto.getTime(), dto.getgData0(), dto.getgData1(),
+                    dto.getgData2(), dto.getgData3()));
         }
 
-        return new ResponseEntity<Object>(HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/{androidId}")
-    ResponseEntity<?> getDataForId(@PathVariable String androidID) {
-        Set<DataEntry> dataEntrySet = dataRepository.findByAndroidId(androidID);
+    ResponseEntity<?> getDataForId(@PathVariable String androidId) {
+        Set<DataEntry> dataEntrySet = dataRepository.findByAndroidId(androidId);
 
-        return new ResponseEntity<Set<DataEntry>>(dataEntrySet, HttpStatus.OK);
+        return new ResponseEntity<>(dataEntrySet, HttpStatus.OK);
     }
 }

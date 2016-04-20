@@ -5,7 +5,7 @@ import java.util.Collection;
 /**
  * Created by Sille Kamoen on 7-3-16.
  */
-public class AndroidDTO {
+public class Attempt {
 
     String androidId;
 
