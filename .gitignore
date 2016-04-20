@@ -30,3 +30,5 @@ proguard/
 
 # Android Studio captures folder
 captures/
+/WEKA_Learning/GyroLearning/nbproject/private/
+/WEKA_Learning/gyrolearn/nbproject/private/
