@@ -1,21 +1,34 @@
 package nl.tudelft.gyroscope;
 
-import java.util.Collection;
+import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Sille Kamoen on 7-3-16.
  */
+@Entity
 public class Attempt {
 
-    String androidId;
+    @Id
+    @GeneratedValue
+    Long id;
 
-    Collection<GyroDTO> entries;
+    private String androidId;
 
-    public Collection<GyroDTO> getEntries() {
+    @OneToMany(cascade = CascadeType.ALL)
+    private List<GyroData> entries;
+
+    public Attempt() {
+        //JPA
+        this.entries = new ArrayList<>();
+    }
+
+    public List<GyroData> getEntries() {
         return entries;
     }
 
-    public void setEntries(Collection<GyroDTO> entries) {
+    public void setEntries(List<GyroData> entries) {
         this.entries = entries;
     }
 

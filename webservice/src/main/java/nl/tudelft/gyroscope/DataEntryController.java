@@ -16,27 +16,30 @@ import java.util.Set;
 public class DataEntryController {
 
     @Autowired
-    DataRepository dataRepository;
+    AttemptRepository attemptRepository;
 
     @RequestMapping(method = RequestMethod.GET)
-    List<DataEntry> showAllData() {
-        return dataRepository.findAll();
+    List<Attempt> showAllData() {
+        return attemptRepository.findAll();
     }
 
     @RequestMapping(method = RequestMethod.POST)
     ResponseEntity<?> addDataEntry(@RequestBody Attempt attempt) {
-        String androidId = attempt.getAndroidId();
-        for (GyroDTO dto : attempt.getEntries()) {
-            dataRepository.save(new DataEntry(androidId, dto.getTime(), dto.getgData0(), dto.getgData1(),
-                    dto.getgData2(), dto.getgData3()));
-        }
+//        Attempt attempt = new Attempt();
+//        attempt.setAndroidId(attempt.getAndroidId());
+//
+//        for (GyroData dto : attempt.getEntries()) {
+//            attempt.getEntries().add(new GyroData(dto.getTime(), dto.getYaw(), dto.getPitch(), dto.getRoll()));
+//        }
+
+        attemptRepository.save(attempt);
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/{androidId}")
     ResponseEntity<?> getDataForId(@PathVariable String androidId) {
-        Set<DataEntry> dataEntrySet = dataRepository.findByAndroidId(androidId);
+        Set<Attempt> dataEntrySet = attemptRepository.findByAndroidId(androidId);
 
         return new ResponseEntity<>(dataEntrySet, HttpStatus.OK);
     }

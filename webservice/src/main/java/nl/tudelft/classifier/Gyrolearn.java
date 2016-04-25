@@ -1,14 +1,17 @@
 package nl.tudelft.classifier;
 
-import weka.core.converters.CSVLoader;
-import weka.core.Instances;
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
+import nl.tudelft.gyroscope.Attempt;
+import nl.tudelft.gyroscope.GyroData;
 import weka.classifiers.AbstractClassifier;
 import weka.core.Attribute;
 import weka.core.DenseInstance;
 import weka.core.Instance;
+import weka.core.Instances;
+import weka.core.converters.CSVLoader;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
 
 public class Gyrolearn {
 
@@ -160,6 +163,80 @@ public class Gyrolearn {
 
         }
         return pin;
+    }
+
+    public static String predictPinFromAttempt(AbstractClassifier classifier, Attempt attempt) throws Exception {
+        String pin = "";
+        ArrayList<Instance> datatest = preProcessAttempt(attempt);
+        Instances dataset = createDataset();
+        int counter = 1;
+        for(Instance d: datatest){
+            d.setDataset(dataset);
+            double[] p= classifier.distributionForInstance(d);
+            System.out.print("digit "+counter+": "); counter++;
+            for(double dist: p){
+                System.out.print(dist+" ");
+            }
+            System.out.println("");
+
+        }
+        return pin;
+    }
+
+    private static ArrayList<Instance> preProcessAttempt(Attempt attempt) {
+        ArrayList<Instance> output_list = new ArrayList<>();
+        ArrayList<Integer> start_index = new ArrayList<>();
+        ArrayList<Integer> end_index = new ArrayList<>();
+
+        int n_pin = 4;
+
+        int data_size = attempt.getEntries().size() - MARGIN_FRONT - MARGIN_BACK;
+
+        //defining starting & ending time index for each pin digit
+        int counter = MARGIN_FRONT + 1;
+        for (int p = 0; p < n_pin; ++p) {
+            start_index.add(counter);
+            counter += (int) data_size / 4;
+            end_index.add(counter);
+        }
+
+        //extracting the features for each digit
+        for (int p = 0; p < n_pin; ++p) {
+            Instance single_digit = extractFeaturesFromAttempt(attempt, start_index.get(p), end_index.get(p));
+            output_list.add(single_digit);
+        }
+
+        return output_list;
+    }
+
+    private static Instance extractFeaturesFromAttempt(Attempt attempt, int start_index, int end_index) {
+        Instance output = new DenseInstance(301);
+
+        ArrayList<Double> delta_yaw = new ArrayList<>();
+        ArrayList<Double> delta_pitch = new ArrayList<>();
+        ArrayList<Double> delta_roll = new ArrayList<>();
+
+        GyroData data_prev_ins = attempt.getEntries().get(start_index);
+//        String[] data_prev = data_prev_ins.stringValue(0).split(";");
+
+        for (int i = start_index + 1; i <= end_index; i++) {
+            GyroData data_t_ins = attempt.getEntries().get(i);
+            delta_yaw.add(Double.parseDouble(data_t_ins.getYaw()) - Double.parseDouble(data_prev_ins.getYaw()));
+            delta_pitch.add(Double.parseDouble(data_t_ins.getPitch()) - Double.parseDouble(data_prev_ins.getPitch()));
+            delta_roll.add(Double.parseDouble(data_t_ins.getRoll()) - Double.parseDouble(data_prev_ins.getRoll()));
+            data_prev_ins = data_t_ins;
+        }
+
+        int n = delta_yaw.size();
+        for (int time = 0; time < 100; time++) {
+            int t = (int) ((double) (time / 100)) * n;
+            output.setValue(time, delta_yaw.get(t));
+            output.setValue(time + 100, delta_pitch.get(t));
+            output.setValue(time + 200, delta_roll.get(t));
+        }
+
+        return output;
+
     }
 
 }
