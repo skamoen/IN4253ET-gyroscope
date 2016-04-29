@@ -13,11 +13,9 @@ public class GyrolearnMain {
 
     public static void main(String[] args) throws Exception {
 
-        Gyrolearn.defineClass();
         Instances dataset = Gyrolearn.loadDataset();
 
-        AbstractClassifier classifier = new NaiveBayes();
-        classifier.buildClassifier(dataset);
+        AbstractClassifier classifier = Gyrolearn.getClassifier();
 
         Evaluation eval = new Evaluation(dataset);
         eval.crossValidateModel(classifier, dataset, 10, new Random());

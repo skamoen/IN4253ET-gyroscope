@@ -3,6 +3,7 @@ package nl.tudelft.classifier;
 import nl.tudelft.gyroscope.Attempt;
 import nl.tudelft.gyroscope.GyroData;
 import weka.classifiers.AbstractClassifier;
+import weka.classifiers.bayes.NaiveBayes;
 import weka.core.Attribute;
 import weka.core.DenseInstance;
 import weka.core.Instance;
@@ -28,6 +29,15 @@ public class Gyrolearn {
 
     public static ArrayList<String> classes = new ArrayList<>();
 
+
+    public static AbstractClassifier getClassifier() throws Exception {
+        Gyrolearn.defineClass();
+        Instances dataset = Gyrolearn.loadDataset();
+        AbstractClassifier classifier = new NaiveBayes();
+        classifier.buildClassifier(dataset);
+
+        return classifier;
+    }
 
     public static void defineClass(){
         classes.add("pin_"+1);
