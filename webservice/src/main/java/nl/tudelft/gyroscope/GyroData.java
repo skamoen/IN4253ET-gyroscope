@@ -63,4 +63,10 @@ public class GyroData {
         this.roll = roll;
     }
 
+    @Override
+    public String toString() {
+        // return the csv representation of this entry
+        return time + ";" + yaw + ";" + pitch + ";" + roll + ";";
+    }
+
 }
