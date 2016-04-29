@@ -40,6 +40,7 @@ public class Gyrolearn {
     }
 
     public static void defineClass(){
+        classes = new ArrayList();
         classes.add("pin_"+1);
         classes.add("pin_"+3);
         classes.add("pin_"+9);
@@ -70,7 +71,6 @@ public class Gyrolearn {
         for(String cls: classes){
             File dir = new File("D:/Data/gyro_data/"+cls+"/");
             File[] fileList = dir.listFiles();
-
             for (File file : fileList) {
                 if (file.isFile()) {
                     String filename = file.getAbsolutePath();

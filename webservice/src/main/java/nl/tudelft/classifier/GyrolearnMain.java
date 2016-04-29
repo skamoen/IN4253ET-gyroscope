@@ -13,10 +13,11 @@ public class GyrolearnMain {
 
     public static void main(String[] args) throws Exception {
 
+        Gyrolearn.defineClass();
         Instances dataset = Gyrolearn.loadDataset();
 
         AbstractClassifier classifier = Gyrolearn.getClassifier();
-
+        System.out.println("content "+dataset.size());
         Evaluation eval = new Evaluation(dataset);
         eval.crossValidateModel(classifier, dataset, 10, new Random());
         System.out.println("Estimated Accuracy: "+Double.toString(eval.pctCorrect()));
