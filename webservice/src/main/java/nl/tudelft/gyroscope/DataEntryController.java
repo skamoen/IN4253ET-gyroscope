@@ -1,10 +1,13 @@
 package nl.tudelft.gyroscope;
 
+import nl.tudelft.classifier.Gyrolearn;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import weka.classifiers.AbstractClassifier;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -33,6 +36,33 @@ public class DataEntryController {
 //        }
 
         attemptRepository.save(attempt);
+
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @RequestMapping(method = RequestMethod.POST)
+    ResponseEntity<?> testData(@RequestBody Attempt attempt) {
+        // victim post his/her gyroscope data through this entrypoint
+        // application try to determine the pin
+        // save the result to database, will need another entrypoint to see the result
+
+        List<GyroData> entries = attempt.getEntries();
+        ArrayList<String> rawCSVData = new ArrayList<String>();
+
+        for(GyroData entry : entries) {
+            rawCSVData.add(entry.toString());
+        }
+
+        String result = "";
+        try {
+            AbstractClassifier classifier = Gyrolearn.getClassifier();
+            result = Gyrolearn.predictPin(classifier, rawCSVData);
+        }
+        catch (Exception ex) {
+
+        }
+
+        // save result somewhere
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
