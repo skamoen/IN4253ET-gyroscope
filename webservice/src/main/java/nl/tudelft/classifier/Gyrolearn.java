@@ -41,9 +41,9 @@ public class Gyrolearn {
 
     public static void defineClass(){
         classes = new ArrayList();
-        classes.add("pin_"+1);
-        classes.add("pin_"+3);
-        classes.add("pin_"+9);
+        for(int pin = 0; pin <= 9; pin++) {
+            classes.add("pin_" + pin);
+        }
     }
 
     public static Instances createDataset(){
@@ -98,60 +98,91 @@ public class Gyrolearn {
     public static Instance extractFeatures(Instances raw, int start_index, int end_index){
         Instance output = new DenseInstance(301);
 
-        ArrayList<Double> delta_yaw = new ArrayList<>();
-        ArrayList<Double> delta_pitch = new ArrayList<>();
-        ArrayList<Double> delta_roll = new ArrayList<>();
+        int n = end_index - start_index;
 
-        Instance data_prev_ins = raw.get(start_index);
-        String[] data_prev = data_prev_ins.stringValue(0).split(";");
+        double yaw_max = -999; double yaw_min = 999;
+        double pitch_max = -999; double pitch_min = 999;
+        double roll_max = -999; double roll_min = 999;
 
-        for (int i=start_index+1; i<= end_index; i++){
-            Instance data_t_ins = raw.get(i);
-            String[] data_t = data_t_ins.stringValue(0).split(";");
-            delta_yaw.add(Double.parseDouble(data_t[1]) - Double.parseDouble(data_prev[1]));
-            delta_pitch.add(Double.parseDouble(data_t[2]) - Double.parseDouble(data_prev[2]));
-            delta_roll.add(Double.parseDouble(data_t[3]) - Double.parseDouble(data_prev[3]));
-            data_prev = data_t;
-        }
-
-        int n = delta_yaw.size();
         for(int time=0; time<100; time++){
-            int t = (int)((double)(time/100))*n;
-            output.setValue(time, delta_yaw.get(t));
-            output.setValue(time+100, delta_pitch.get(t));
-            output.setValue(time+200, delta_roll.get(t));
-        }
+            int t = start_index + n*time/101;
+            int t_1 = start_index + n*(time+1)/101;
 
+            Instance data_t_ins = raw.get(t);
+            String[] data_t = data_t_ins.stringValue(0).split(";");
+
+            Instance data_t_1_ins = raw.get(t_1);
+            String[] data_t_1 = data_t_1_ins.stringValue(0).split(";");
+            double delta_yaw = Double.parseDouble(data_t_1[1]) - Double.parseDouble(data_t[1]);
+            if(delta_yaw > yaw_max){ yaw_max = delta_yaw; }
+            if(delta_yaw < yaw_min){ yaw_min = delta_yaw; }
+            double delta_pitch = Double.parseDouble(data_t_1[2]) - Double.parseDouble(data_t[2]);
+            if(delta_pitch > pitch_max){ yaw_max = delta_pitch; }
+            if(delta_pitch < pitch_min){ yaw_min = delta_pitch; }
+
+            double delta_roll = Double.parseDouble(data_t_1[3]) - Double.parseDouble(data_t[3]);
+            if(delta_roll > roll_max){ roll_max = delta_roll; }
+            if(delta_roll < roll_min){ yaw_min = delta_roll; }
+            //System.out.println("yaw_ = "+Double.parseDouble(data_t_1[1])+" pitch = "+Double.parseDouble(data_t_1[2])+" roll = "+Double.parseDouble(data_t_1[3]));
+
+            output.setValue(time, delta_yaw);
+            output.setValue(time+100, delta_pitch);
+            output.setValue(time+200, delta_roll);
+
+        }
+        //System.out.println("yaw_max = "+yaw_max+" yaw_min = "+yaw_min);
+/*        for(int time=0; time<100; time++){
+            if(yaw_max > yaw_min){ output.setValue(time, (output.value(time)-yaw_min)*100/(yaw_max-yaw_min)); }
+            if(pitch_max > pitch_min){ output.setValue(time+100, (output.value(time+100)-pitch_min)*100/(pitch_max-pitch_min)); }
+            if(roll_max > roll_min){ output.setValue(time+200, (output.value(time+200)-roll_min)*100/(roll_max-roll_min)); }
+        }
+*/
         return output;
     }
+
 
     public static Instance extractFeatures(ArrayList<String> raw, int start_index, int end_index){
         Instance output = new DenseInstance(301);
 
-        ArrayList<Double> delta_yaw = new ArrayList<>();
-        ArrayList<Double> delta_pitch = new ArrayList<>();
-        ArrayList<Double> delta_roll = new ArrayList<>();
+        int n = end_index - start_index;
 
-        String data_prev_ins = raw.get(start_index);
-        String[] data_prev = data_prev_ins.split(";");
+        double yaw_max = -999; double yaw_min = 999;
+        double pitch_max = -999; double pitch_min = 999;
+        double roll_max = -999; double roll_min = 999;
 
-        for (int i=start_index+1; i<= end_index; i++){
-            String data_t_ins = raw.get(i);
-            String[] data_t = data_t_ins.split(";");
-            delta_yaw.add(Double.parseDouble(data_t[1]) - Double.parseDouble(data_prev[1]));
-            delta_pitch.add(Double.parseDouble(data_t[2]) - Double.parseDouble(data_prev[2]));
-            delta_roll.add(Double.parseDouble(data_t[3]) - Double.parseDouble(data_prev[3]));
-            data_prev = data_t;
-        }
-
-        int n = delta_yaw.size();
         for(int time=0; time<100; time++){
-            int t = (int)((double)(time/100))*n;
-            output.setValue(time, delta_yaw.get(t));
-            output.setValue(time+100, delta_pitch.get(t));
-            output.setValue(time+200, delta_roll.get(t));
-        }
+            int t = start_index + n*time/101;
+            int t_1 = start_index + n*(time+1)/101;
 
+            String data_t_ins = raw.get(t);
+            String[] data_t = data_t_ins.split(";");
+
+            String data_t_1_ins = raw.get(t_1);
+            String[] data_t_1 = data_t_1_ins.split(";");
+            double delta_yaw = Double.parseDouble(data_t_1[1]) - Double.parseDouble(data_t[1]);
+            if(delta_yaw > yaw_max){ yaw_max = delta_yaw; }
+            if(delta_yaw < yaw_min){ yaw_min = delta_yaw; }
+            double delta_pitch = Double.parseDouble(data_t_1[2]) - Double.parseDouble(data_t[2]);
+            if(delta_pitch > pitch_max){ yaw_max = delta_pitch; }
+            if(delta_pitch < pitch_min){ yaw_min = delta_pitch; }
+
+            double delta_roll = Double.parseDouble(data_t_1[3]) - Double.parseDouble(data_t[3]);
+            if(delta_roll > roll_max){ roll_max = delta_roll; }
+            if(delta_roll < roll_min){ yaw_min = delta_roll; }
+            //System.out.println("yaw_ = "+Double.parseDouble(data_t_1[1])+" pitch = "+Double.parseDouble(data_t_1[2])+" roll = "+Double.parseDouble(data_t_1[3]));
+
+            output.setValue(time, delta_yaw);
+            output.setValue(time+100, delta_pitch);
+            output.setValue(time+200, delta_roll);
+
+        }
+        //System.out.println("yaw_max = "+yaw_max+" yaw_min = "+yaw_min);
+/*        for(int time=0; time<100; time++){
+            if(yaw_max > yaw_min){ output.setValue(time, (output.value(time)-yaw_min)*100/(yaw_max-yaw_min)); }
+            if(pitch_max > pitch_min){ output.setValue(time+100, (output.value(time+100)-pitch_min)*100/(pitch_max-pitch_min)); }
+            if(roll_max > roll_min){ output.setValue(time+200, (output.value(time+200)-roll_min)*100/(roll_max-roll_min)); }
+        }
+*/
         return output;
     }
 
@@ -221,12 +252,15 @@ public class Gyrolearn {
         int counter = 1;
         for(Instance d: datatest){
             d.setDataset(dataset);
+            /*
             double[] p= classifier.distributionForInstance(d);
             System.out.print("digit "+counter+": "); counter++;
             for(double dist: p){
                 System.out.print(dist+" ");
             }
             System.out.println("");
+            */
+            System.out.println("digit "+counter+": "+classifier.classifyInstance(d)); counter++;
 
         }
         return pin;
