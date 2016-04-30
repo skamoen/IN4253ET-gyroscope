@@ -31,7 +31,7 @@ public class GyrolearnMain {
         }
 
 
-
+/*
         for(int i=0; i< dataset.size(); ++i){
             Instance trn = dataset.get(i);
             double[] p= classifier.distributionForInstance(trn);
@@ -41,6 +41,6 @@ public class GyrolearnMain {
             }
             System.out.println("");
         }
-
+*/
     }
 }
