@@ -29,14 +29,19 @@ public class Gyrolearn {
 
     public static ArrayList<String> classes = new ArrayList<>();
 
+    public static AbstractClassifier theClassifier;
+
 
     public static AbstractClassifier getClassifier() throws Exception {
-        Gyrolearn.defineClass();
-        Instances dataset = Gyrolearn.loadDataset();
-        AbstractClassifier classifier = new NaiveBayes();
-        classifier.buildClassifier(dataset);
-
-        return classifier;
+        if(theClassifier == null) {
+            // if we already have the classifier, do not rebuild it again
+            // ideally this should be serialized/saved into the db or such and load from that
+            Gyrolearn.defineClass();
+            Instances dataset = Gyrolearn.loadDataset();
+            theClassifier = new NaiveBayes();
+            theClassifier.buildClassifier(dataset);
+        }
+        return theClassifier;
     }
 
     public static void defineClass(){
