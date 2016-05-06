@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Bean;
 public class GyroscopeServiceApplication {
 
     @Bean
-    CommandLineRunner init(AttemptRepository attemptRepository) {
+    CommandLineRunner init(AttemptRepository attemptRepository, ProcessingService processingService) {
 
         return (evt) -> {
             Attempt attempt = new Attempt();
@@ -453,9 +453,9 @@ public class GyroscopeServiceApplication {
             attempt.getEntries().add(new GyroData("856184641", "160.3", "-13.0", "14.5"));
             attempt.getEntries().add(new GyroData("856184651", "160.3", "-13.0", "14.3"));
             attempt.getEntries().add(new GyroData("856184664", "160.3", "-12.900001", "14.2"));
-            attemptRepository.save(attempt);
+            Attempt save = attemptRepository.save(attempt);
 
-
+            processingService.processAttempt(save);
 
         };
 

@@ -24,6 +24,10 @@ public class Attempt {
         this.entries = new ArrayList<>();
     }
 
+    public Long getId() {
+        return id;
+    }
+
     public List<GyroData> getEntries() {
         return entries;
     }

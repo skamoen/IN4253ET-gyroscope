@@ -13,6 +13,8 @@ import weka.core.converters.CSVLoader;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 
 public class Gyrolearn {
 
@@ -74,7 +76,7 @@ public class Gyrolearn {
         Instances dataset = createDataset();
 
         for(String cls: classes){
-            File dir = new File("D:/Data/gyro_data/"+cls+"/");
+            File dir = new File("../gyro_data/"+cls+"/");
             File[] fileList = dir.listFiles();
             for (File file : fileList) {
                 if (file.isFile()) {
@@ -272,6 +274,7 @@ public class Gyrolearn {
     }
 
     public static String predictPin(AbstractClassifier classifier, ArrayList<String> rawtest) throws Exception{
+        HashMap<Integer, Double> valueMapping = new HashMap<>()
         String pin = "";
         ArrayList<Instance> datatest = preProcessTest(rawtest);
         Instances dataset = createDataset();
@@ -280,12 +283,16 @@ public class Gyrolearn {
             d.setDataset(dataset);
             double[] p= classifier.distributionForInstance(d);
             System.out.print("digit "+counter+": "); counter++;
-            for(double dist: p){
+            for(int idx = 0; idx < p.length; idx++){
+                double dist = p[idx];
                 System.out.print(dist+" ");
+                valueMapping.put(idx, dist);
             }
             System.out.println("");
 
         }
+
+
         return pin;
     }
 
