@@ -1,11 +1,13 @@
 package nl.tudelft.superevilhackinglab;
 
+import android.app.Application;
 import android.app.KeyguardManager;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -170,6 +172,9 @@ public class BackgroundListenerService extends Service implements SensorEventLis
                     }
                 });
 
+                SharedPreferences sharedPref = getSharedPreferences("settings", Context.MODE_PRIVATE);
+                String serverAddress = sharedPref.getString("endpoint", "http://httpbin.org/post");
+
                 for(final File eachLog : logFiles) {
                     try {
                         String logFileContent = Utils.readFileContent(eachLog);
@@ -178,7 +183,7 @@ public class BackgroundListenerService extends Service implements SensorEventLis
                         params.put("deviceinfo", deviceInfo);
                         params.put("log", logFileContent);
 
-                        Utils.postToServer(StaticVariables.endpoint, params, new OperationEventHandler() {
+                        Utils.postToServer(serverAddress, params, new OperationEventHandler() {
                             @Override
                             public void onSuccess() {
                                 // delete the file after successfully send the log to webservice

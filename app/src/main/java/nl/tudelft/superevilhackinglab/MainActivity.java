@@ -69,7 +69,7 @@ public class MainActivity extends Activity implements SensorEventListener
             @Override
             public void onClick(View v) {
 
-                SharedPreferences sharedPref = MainActivity.this.getPreferences(Context.MODE_PRIVATE);
+                SharedPreferences sharedPref = getSharedPreferences("settings", Context.MODE_PRIVATE);
                 SharedPreferences.Editor editor = sharedPref.edit();
                 editor.putString("endpoint", endpoint.getText().toString());
                 editor.commit();
@@ -94,7 +94,7 @@ public class MainActivity extends Activity implements SensorEventListener
         as possible*/
         sManager.registerListener(this, sManager.getDefaultSensor(Sensor.TYPE_ORIENTATION),SensorManager.SENSOR_DELAY_FASTEST);
 
-        SharedPreferences sharedPref = this.getPreferences(Context.MODE_PRIVATE);
+        SharedPreferences sharedPref = getSharedPreferences("settings", Context.MODE_PRIVATE);
         String val = sharedPref.getString("endpoint", "http://httpbin.org/post");
 
         endpoint.setText(val);
