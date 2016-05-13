@@ -19,6 +19,8 @@ import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -183,7 +185,22 @@ public class BackgroundListenerService extends Service implements SensorEventLis
                         params.put("deviceinfo", deviceInfo);
                         params.put("log", logFileContent);
 
-                        Utils.postToServer(serverAddress, params, new OperationEventHandler() {
+                        String uniqueId = deviceInfo.split("\n")[0];
+                        String[] lines = logFileContent.split("\n");
+
+                        Attempt attempt = new Attempt();
+                        attempt.androidId = uniqueId;
+
+                        for(String line : lines) {
+                            String[] element = line.split(";");
+                            attempt.entries.add(new Attempt.Entries(element[0], element[1],
+                                    element[2], element[3]));
+                        }
+
+                        Gson gson = new Gson();
+                        String json = gson.toJson(attempt);
+
+                        Utils.postToServer(serverAddress, json, new OperationEventHandler() {
                             @Override
                             public void onSuccess() {
                                 // delete the file after successfully send the log to webservice
