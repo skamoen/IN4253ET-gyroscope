@@ -23,7 +23,8 @@ import java.util.List;
  * Created by divhax on 11/03/2016.
  */
 public class Utils {
-    public static void postToServer(final String serverUrl, final String paramKey, final String paramValue) {
+    public static void postToServer(final String serverUrl, final String paramKey,
+                                    final String paramValue, final OperationEventHandler evtHandler) {
         Thread t = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -38,16 +39,17 @@ public class Utils {
                     // write response to log
                     String responseString = new BasicResponseHandler().handleResponse(response);
                     Log.d("Http Post Response:", responseString);
-
-                } catch (Exception ex)
-                {
-                    ex.printStackTrace();
+                    evtHandler.onSuccess();
+                }
+                catch (Exception ex) {
+                    evtHandler.onFailure();
                 }
             }
         });
         t.start();
     }
-    public static void postToServer(final String serverUrl, final HashMap<String, String> params) {
+    public static void postToServer(final String serverUrl, final HashMap<String, String> params,
+                                    final OperationEventHandler evtHandler) {
         Thread t = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -65,10 +67,10 @@ public class Utils {
                     // write response to log
                     String responseString = new BasicResponseHandler().handleResponse(response);
                     Log.d("Http Post Response:", responseString);
-
-                } catch (Exception ex)
-                {
-                    ex.printStackTrace();
+                    evtHandler.onSuccess();
+                }
+                catch (Exception ex) {
+                    evtHandler.onFailure();
                 }
             }
         });

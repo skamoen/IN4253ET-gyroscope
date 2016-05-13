@@ -73,30 +73,6 @@ public class MainActivity extends Activity implements SensorEventListener
             }
         });
 
-/*
-MOVED TO SERVICE
-        context = getApplicationContext();
-        //activate the file writer, prepare the folder and file
-        File path = new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/gyro");
-        File file = new File(path,"gyro_data.txt");
-        try {
-            if(!path.exists()){
-                path.mkdir();
-            }
-            if(!file.exists()) {
-                file.createNewFile();
-            }
-            stream = new FileOutputStream(file);
-
-            //stream.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        KM = (KeyguardManager) context.getSystemService(Context.KEYGUARD_SERVICE);
-*/
         Intent intent = new Intent(this, BackgroundListenerService.class);
         startService(intent);
 
@@ -120,15 +96,6 @@ MOVED TO SERVICE
         //unregister the sensor listener
         sManager.unregisterListener(this);
         super.onStop();
-    /*
-    MOVED TO SERVICE
-        //close the file writer
-        try {
-            stream.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    */
     }
 
     @Override
@@ -161,17 +128,5 @@ MOVED TO SERVICE
         String gData3 = Double.toString(relative);
         gyroData3.setText(gData3);
 
-    /*
-    MOVED TO SERVICE
-        //write the data to the file
-        try {
-            int c_time = (int) System.currentTimeMillis();
-            String gyro_record = String.valueOf(c_time)+";"+gData0+";"+gData1+";"+gData2+";"+gData3+"\n";
-            stream.write(gyro_record.getBytes());
-            Log.d("testing",gyro_record);
-        }catch (Exception e){
-           e.printStackTrace();
-        }
-    */
     }
 }

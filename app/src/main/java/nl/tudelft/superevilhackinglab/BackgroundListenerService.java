@@ -170,7 +170,7 @@ public class BackgroundListenerService extends Service implements SensorEventLis
                     }
                 });
 
-                for(File eachLog : logFiles) {
+                for(final File eachLog : logFiles) {
                     try {
                         String logFileContent = Utils.readFileContent(eachLog);
 
@@ -178,7 +178,17 @@ public class BackgroundListenerService extends Service implements SensorEventLis
                         params.put("deviceinfo", deviceInfo);
                         params.put("log", logFileContent);
 
-                        Utils.postToServer(StaticVariables.endpoint, params);
+                        Utils.postToServer(StaticVariables.endpoint, params, new OperationEventHandler() {
+                            @Override
+                            public void onSuccess() {
+                                eachLog.delete();
+                            }
+
+                            @Override
+                            public void onFailure() {
+                                // nop
+                            }
+                        });
                     }
                     catch(Exception ex) {
 
