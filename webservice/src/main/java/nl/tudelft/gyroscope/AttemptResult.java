@@ -1,5 +1,7 @@
 package nl.tudelft.gyroscope;
 
+import java.util.ArrayList;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -10,35 +12,44 @@ import javax.persistence.Id;
 @Entity
 public class AttemptResult {
 
-    @GeneratedValue
-    @Id
-    Long id;
+  @GeneratedValue
+  @Id
+  Long id;
 
-    private Long attemptId;
+  private Long attemptId;
 
-    private String result;
+  private ArrayList<ResultPin> resultPins;
 
-    public AttemptResult(Attempt attempt, String result) {
-        this.attemptId = attempt.getId();
-        this.result = result;
-    }
 
-    public AttemptResult() {
-    }
+  public AttemptResult() {
+  }
 
-    public Long getAttemptId() {
-        return attemptId;
-    }
+  public Long getAttemptId() {
+    return attemptId;
+  }
 
-    public void setAttemptId(Long attemptId) {
-        this.attemptId = attemptId;
-    }
+  public void setAttemptId(Long attemptId) {
+    this.attemptId = attemptId;
+  }
 
-    public String getResult() {
-        return result;
-    }
+  public AttemptResult(Long attemptId, ArrayList<ResultPin> resultPins) {
+    this.attemptId = attemptId;
+    this.resultPins = resultPins;
+  }
 
-    public void setResult(String result) {
-        this.result = result;
-    }
+  public Long getId() {
+    return id;
+  }
+
+  public ArrayList<ResultPin> getResultPins() {
+    return resultPins;
+  }
+
+  public void setResultPins(ArrayList<ResultPin> resultPins) {
+    this.resultPins = resultPins;
+  }
 }
+
+
+
+
