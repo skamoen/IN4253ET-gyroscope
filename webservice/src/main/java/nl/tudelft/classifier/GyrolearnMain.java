@@ -20,7 +20,7 @@ public class GyrolearnMain {
 
         PrincipalComponents pca = new PrincipalComponents();
         pca.setInputFormat(dataset);
-        pca.setMaximumAttributes(40);
+        pca.setMaximumAttributes(10);
 
         //dataset = Filter.useFilter(dataset, pca);
 

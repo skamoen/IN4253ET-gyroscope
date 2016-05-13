@@ -31,7 +31,7 @@ public class Gyrolearn {
     public static final int MARGIN_FRONT = 10;
     public static final int MARGIN_BACK = 10;
 
-    public static final int NUM_OF_ATTR = 300;
+    public static final int NUM_OF_TIMEFRAME = 40;
 
     public static ArrayList<String> classes = new ArrayList<>();
 
@@ -44,8 +44,9 @@ public class Gyrolearn {
             // ideally this should be serialized/saved into the db or such and load from that
             Gyrolearn.defineClass();
             Instances dataset = Gyrolearn.loadDataset();
-            //theClassifier = new NaiveBayes();
-            theClassifier = new SMO();
+            theClassifier = new NaiveBayes();
+            // theClassifier = new SMO();
+            //theClassifier = new IBk();
             theClassifier.buildClassifier(dataset);
         }
         return theClassifier;
@@ -61,7 +62,7 @@ public class Gyrolearn {
     public static Instances createDataset(){
         ArrayList<Attribute> attr_list = new ArrayList<>();
 
-        for(int i=0; i<NUM_OF_ATTR; ++i){
+        for(int i=0; i<NUM_OF_TIMEFRAME*3; ++i){
             attr_list.add(new Attribute("attr"+i));
         }
 
@@ -109,7 +110,7 @@ public class Gyrolearn {
     }
 
     public static Instance extractFeatures(Instances raw, int start_index, int end_index){
-        Instance output = new DenseInstance(301);
+        Instance output = new DenseInstance(NUM_OF_TIMEFRAME*3+1);
 
         int n = end_index - start_index;
 
@@ -117,9 +118,9 @@ public class Gyrolearn {
         double pitch_max = -999; double pitch_min = 999;
         double roll_max = -999; double roll_min = 999;
 
-        for(int time=0; time<100; time++){
-            int t = start_index + n*time/101;
-            int t_1 = start_index + n*(time+1)/101;
+        for(int time=0; time<NUM_OF_TIMEFRAME; time++){
+            int t = start_index + n*time/(NUM_OF_TIMEFRAME+1);
+            int t_1 = start_index + n*(time+1)/(NUM_OF_TIMEFRAME+1);
 
             Instance data_t_ins = raw.get(t);
             String[] data_t = data_t_ins.stringValue(0).split(";");
@@ -139,23 +140,16 @@ public class Gyrolearn {
             //System.out.println("yaw_ = "+Double.parseDouble(data_t_1[1])+" pitch = "+Double.parseDouble(data_t_1[2])+" roll = "+Double.parseDouble(data_t_1[3]));
 
             output.setValue(time, delta_yaw);
-            output.setValue(time+100, delta_pitch);
-            output.setValue(time+200, delta_roll);
+            output.setValue(time+NUM_OF_TIMEFRAME, delta_pitch);
+            output.setValue(time+NUM_OF_TIMEFRAME*2, delta_roll);
 
         }
-        //System.out.println("yaw_max = "+yaw_max+" yaw_min = "+yaw_min);
-/*        for(int time=0; time<100; time++){
-            if(yaw_max > yaw_min){ output.setValue(time, (output.value(time)-yaw_min)*100/(yaw_max-yaw_min)); }
-            if(pitch_max > pitch_min){ output.setValue(time+100, (output.value(time+100)-pitch_min)*100/(pitch_max-pitch_min)); }
-            if(roll_max > roll_min){ output.setValue(time+200, (output.value(time+200)-roll_min)*100/(roll_max-roll_min)); }
-        }
-*/
         return output;
     }
 
 
     public static Instance extractFeatures(ArrayList<String> raw, int start_index, int end_index){
-        Instance output = new DenseInstance(301);
+        Instance output = new DenseInstance(3*NUM_OF_TIMEFRAME+1);
 
         int n = end_index - start_index;
 
@@ -163,9 +157,9 @@ public class Gyrolearn {
         double pitch_max = -999; double pitch_min = 999;
         double roll_max = -999; double roll_min = 999;
 
-        for(int time=0; time<100; time++){
-            int t = start_index + n*time/101;
-            int t_1 = start_index + n*(time+1)/101;
+        for(int time=0; time<NUM_OF_TIMEFRAME; time++){
+            int t = start_index + n*time/(NUM_OF_TIMEFRAME+1);
+            int t_1 = start_index + n*(time+1)/(NUM_OF_TIMEFRAME+1);
 
             String data_t_ins = raw.get(t);
             String[] data_t = data_t_ins.split(";");
@@ -185,17 +179,11 @@ public class Gyrolearn {
             //System.out.println("yaw_ = "+Double.parseDouble(data_t_1[1])+" pitch = "+Double.parseDouble(data_t_1[2])+" roll = "+Double.parseDouble(data_t_1[3]));
 
             output.setValue(time, delta_yaw);
-            output.setValue(time+100, delta_pitch);
-            output.setValue(time+200, delta_roll);
+            output.setValue(time+NUM_OF_TIMEFRAME, delta_pitch);
+            output.setValue(time+NUM_OF_TIMEFRAME*2, delta_roll);
 
         }
-        //System.out.println("yaw_max = "+yaw_max+" yaw_min = "+yaw_min);
-/*        for(int time=0; time<100; time++){
-            if(yaw_max > yaw_min){ output.setValue(time, (output.value(time)-yaw_min)*100/(yaw_max-yaw_min)); }
-            if(pitch_max > pitch_min){ output.setValue(time+100, (output.value(time+100)-pitch_min)*100/(pitch_max-pitch_min)); }
-            if(roll_max > roll_min){ output.setValue(time+200, (output.value(time+200)-roll_min)*100/(roll_max-roll_min)); }
-        }
-*/
+
         return output;
     }
 
@@ -361,7 +349,7 @@ public class Gyrolearn {
     }
 
     private static Instance extractFeaturesFromAttempt(Attempt attempt, int start_index, int end_index) {
-        Instance output = new DenseInstance(301);
+        Instance output = new DenseInstance(3*NUM_OF_TIMEFRAME+1);
 
         ArrayList<Double> delta_yaw = new ArrayList<>();
         ArrayList<Double> delta_pitch = new ArrayList<>();
@@ -379,11 +367,11 @@ public class Gyrolearn {
         }
 
         int n = delta_yaw.size();
-        for (int time = 0; time < 100; time++) {
-            int t = (int) ((double) (time / 100)) * n;
+        for (int time = 0; time < NUM_OF_TIMEFRAME; time++) {
+            int t = (int) ((double) (time / NUM_OF_TIMEFRAME)) * n;
             output.setValue(time, delta_yaw.get(t));
-            output.setValue(time + 100, delta_pitch.get(t));
-            output.setValue(time + 200, delta_roll.get(t));
+            output.setValue(time + NUM_OF_TIMEFRAME, delta_pitch.get(t));
+            output.setValue(time + NUM_OF_TIMEFRAME*2, delta_roll.get(t));
         }
 
         return output;
