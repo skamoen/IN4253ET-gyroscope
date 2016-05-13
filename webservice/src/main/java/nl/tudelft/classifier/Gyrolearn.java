@@ -4,6 +4,9 @@ import nl.tudelft.gyroscope.Attempt;
 import nl.tudelft.gyroscope.GyroData;
 import weka.classifiers.AbstractClassifier;
 import weka.classifiers.bayes.NaiveBayes;
+import weka.classifiers.functions.SMO;
+import weka.classifiers.lazy.IBk;
+import weka.classifiers.pmml.consumer.SupportVectorMachineModel;
 import weka.core.Attribute;
 import weka.core.DenseInstance;
 import weka.core.Instance;
@@ -38,7 +41,8 @@ public class Gyrolearn {
             // ideally this should be serialized/saved into the db or such and load from that
             Gyrolearn.defineClass();
             Instances dataset = Gyrolearn.loadDataset();
-            theClassifier = new NaiveBayes();
+            //theClassifier = new NaiveBayes();
+            theClassifier = new SMO();
             theClassifier.buildClassifier(dataset);
         }
         return theClassifier;

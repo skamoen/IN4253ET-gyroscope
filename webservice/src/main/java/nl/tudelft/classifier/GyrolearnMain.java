@@ -7,6 +7,8 @@ import weka.classifiers.bayes.NaiveBayes;
 import weka.classifiers.trees.J48;
 import weka.core.Instance;
 import weka.core.Instances;
+import weka.filters.Filter;
+import weka.filters.unsupervised.attribute.PrincipalComponents;
 
 public class GyrolearnMain {
 
@@ -15,6 +17,12 @@ public class GyrolearnMain {
 
         Gyrolearn.defineClass();
         Instances dataset = Gyrolearn.loadDataset();
+
+        PrincipalComponents pca = new PrincipalComponents();
+        pca.setInputFormat(dataset);
+        pca.setMaximumAttributes(40);
+
+        //dataset = Filter.useFilter(dataset, pca);
 
         AbstractClassifier classifier = Gyrolearn.getClassifier();
         System.out.println("content "+dataset.size());
