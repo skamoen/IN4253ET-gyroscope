@@ -11,7 +11,11 @@ package nl.tudelft.superevilhackinglab;
         import android.os.Bundle;
         import android.os.Environment;
         import android.util.Log;
+        import android.view.View;
+        import android.widget.Button;
+        import android.widget.EditText;
         import android.widget.TextView;
+        import android.widget.Toast;
 
         import java.io.File;
         import java.io.FileNotFoundException;
@@ -26,6 +30,8 @@ public class MainActivity extends Activity implements SensorEventListener
     private TextView gyroData2;
     private TextView gyroData3;
     private TextView deviceInfo;
+    private EditText endpoint;
+    private Button updateEndpoint;
     //the Sensor Manager
     private SensorManager sManager;
 
@@ -46,6 +52,8 @@ public class MainActivity extends Activity implements SensorEventListener
         gyroData2 = (TextView) findViewById(R.id.gyroData2);
         gyroData3 = (TextView) findViewById(R.id.gyroData3);
         deviceInfo = (TextView) findViewById(R.id.deviceInfo);
+        endpoint = (EditText) findViewById(R.id.webendpoint);
+        updateEndpoint = (Button) findViewById(R.id.updateEndpoint);
 
         String OSver = System.getProperty("os.version") + "(" + android.os.Build.VERSION.INCREMENTAL + ")";
         String ApiLevel = android.os.Build.VERSION.SDK_INT + "";
@@ -55,6 +63,15 @@ public class MainActivity extends Activity implements SensorEventListener
         deviceInfo.setText(Device+" - "+Model);
         //get a hook to the sensor service
         sManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+
+        updateEndpoint.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                StaticVariables.endpoint = endpoint.getText().toString();
+                Toast.makeText(MainActivity.this, "endpoint updated to: "+endpoint.getText().toString(),
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
 
 /*
 MOVED TO SERVICE
@@ -83,7 +100,6 @@ MOVED TO SERVICE
         Intent intent = new Intent(this, BackgroundListenerService.class);
         startService(intent);
 
-        Utils.postToServer("http://httpbin.org/post", "testKey", "testvalue");
     }
 
     //when this Activity starts
@@ -95,7 +111,7 @@ MOVED TO SERVICE
         callbacks defined in this class, and gather the sensor information as quick
         as possible*/
         sManager.registerListener(this, sManager.getDefaultSensor(Sensor.TYPE_ORIENTATION),SensorManager.SENSOR_DELAY_FASTEST);
-
+        endpoint.setText(StaticVariables.endpoint);
     }
     //When this Activity isn't visible anymore
     @Override

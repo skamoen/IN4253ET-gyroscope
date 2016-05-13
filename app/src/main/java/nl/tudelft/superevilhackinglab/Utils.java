@@ -11,7 +11,12 @@ import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -41,5 +46,46 @@ public class Utils {
             }
         });
         t.start();
+    }
+    public static void postToServer(final String serverUrl, final HashMap<String, String> params) {
+        Thread t = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                HttpClient httpClient = new DefaultHttpClient();
+                HttpPost httpPost = new HttpPost(serverUrl);
+                List<NameValuePair> nvPair = new ArrayList<NameValuePair>();
+
+                for(String key : params.keySet()) {
+                    nvPair.add(new BasicNameValuePair(key, params.get(key)));
+                }
+
+                try {
+                    httpPost.setEntity(new UrlEncodedFormEntity(nvPair));
+                    HttpResponse response = httpClient.execute(httpPost);
+                    // write response to log
+                    String responseString = new BasicResponseHandler().handleResponse(response);
+                    Log.d("Http Post Response:", responseString);
+
+                } catch (Exception ex)
+                {
+                    ex.printStackTrace();
+                }
+            }
+        });
+        t.start();
+    }
+
+
+    public static String readFileContent(File theFile) throws Exception {
+        FileInputStream fis = new FileInputStream(theFile);
+        BufferedReader br = new BufferedReader(new InputStreamReader(fis));
+        StringBuilder sb = new StringBuilder();
+        String line = null;
+        while ((line = br.readLine()) != null) {
+            sb.append(line).append("\n");
+        }
+        br.close();
+
+        return sb.toString();
     }
 }

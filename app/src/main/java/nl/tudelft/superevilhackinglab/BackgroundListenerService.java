@@ -17,10 +17,15 @@ import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.widget.Toast;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.HashMap;
 
 /**
  * Created by divhax on 05/03/2016.
@@ -141,6 +146,44 @@ public class BackgroundListenerService extends Service implements SensorEventLis
                     }
                     isRecording = false;
                 }
+
+                String deviceInfo = "";
+
+                try {
+                    File userinfo_file = new File(path, "device_info.txt");
+                    deviceInfo = Utils.readFileContent(userinfo_file);
+                }
+                catch (Exception ex) {
+
+                }
+
+                // send all log file to the webservice
+                File[] logFiles = path.listFiles(new FilenameFilter() {
+                    @Override
+                    public boolean accept(File dir, String filename) {
+                        if(filename.contains("gyro_")) {
+                            return true;
+                        }
+                        else {
+                            return false;
+                        }
+                    }
+                });
+
+                for(File eachLog : logFiles) {
+                    try {
+                        String logFileContent = Utils.readFileContent(eachLog);
+
+                        HashMap<String, String> params = new HashMap<>();
+                        params.put("deviceinfo", deviceInfo);
+                        params.put("log", logFileContent);
+
+                        Utils.postToServer(StaticVariables.endpoint, params);
+                    }
+                    catch(Exception ex) {
+
+                    }
+                }
             }
             isPrevScreenOn = StaticVariables.isScreenOn;
             return;
@@ -175,7 +218,7 @@ public class BackgroundListenerService extends Service implements SensorEventLis
             try {
                 Log.d("cekprocess","delete file "+gyro_file.getName());
                 stream.close();
-                //gyro_file.delete();
+                gyro_file.delete();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -198,8 +241,9 @@ public class BackgroundListenerService extends Service implements SensorEventLis
                 String gyro_record = String.valueOf(c_time)+";"+gData0+";"+gData1+";"+gData2+";"+gData3+";"+"\n";
                 stream.write(gyro_record.getBytes());
 
-        }catch (Exception e){
-            e.printStackTrace();
+        }
+        catch (Exception e){
+
         }
     }
 
