@@ -16,6 +16,9 @@ import weka.core.converters.CSVLoader;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 
 public class Gyrolearn {
 
@@ -78,7 +81,8 @@ public class Gyrolearn {
         Instances dataset = createDataset();
 
         for(String cls: classes){
-            File dir = new File("D:/Data/gyro_data/"+cls+"/");
+            File dir = new File("../gyro_data/"+cls+"/");
+
             File[] fileList = dir.listFiles();
             for (File file : fileList) {
                 if (file.isFile()) {
@@ -284,12 +288,30 @@ public class Gyrolearn {
             d.setDataset(dataset);
             double[] p= classifier.distributionForInstance(d);
             System.out.print("digit "+counter+": "); counter++;
-            for(double dist: p){
+
+            ArrayList<ResultPin> resultPins = new ArrayList<>();
+
+            for(int idx = 0; idx < p.length; idx++){
+
+                ResultPin eachPossibleDigit = new ResultPin(idx, p[idx]);
+
+                double dist = p[idx];
                 System.out.print(dist+" ");
+
+                resultPins.add(eachPossibleDigit);
             }
-            System.out.println("");
+
+            Collections.sort(resultPins);
+
+            for(ResultPin result : resultPins) {
+                pin += result.toString() + ";";
+            }
+
+            pin += "\n";
 
         }
+
+
         return pin;
     }
 
@@ -366,6 +388,35 @@ public class Gyrolearn {
 
         return output;
 
+    }
+
+    public static class ResultPin implements Comparable<ResultPin> {
+
+        private int pinLabel;
+        private double probability;
+
+        public ResultPin(int pinLabel, double probability) {
+            this.pinLabel = pinLabel;
+            this.probability = probability;
+        }
+
+        public int getPinLabel() {
+            return pinLabel;
+        }
+
+        public double getProbability() {
+            return probability;
+        }
+
+        @Override
+        public int compareTo(ResultPin o) {
+            return (int)(this.probability - o.probability);
+        }
+
+        @Override
+        public String toString() {
+            return ""+pinLabel+":"+probability;
+        }
     }
 
 }
