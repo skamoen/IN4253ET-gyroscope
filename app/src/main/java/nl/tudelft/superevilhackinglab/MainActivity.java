@@ -4,6 +4,7 @@ package nl.tudelft.superevilhackinglab;
         import android.app.KeyguardManager;
         import android.content.Context;
         import android.content.Intent;
+        import android.content.SharedPreferences;
         import android.hardware.Sensor;
         import android.hardware.SensorEvent;
         import android.hardware.SensorEventListener;
@@ -67,7 +68,12 @@ public class MainActivity extends Activity implements SensorEventListener
         updateEndpoint.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                StaticVariables.endpoint = endpoint.getText().toString();
+
+                SharedPreferences sharedPref = MainActivity.this.getPreferences(Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = sharedPref.edit();
+                editor.putString("endpoint", endpoint.getText().toString());
+                editor.commit();
+
                 Toast.makeText(MainActivity.this, "endpoint updated to: "+endpoint.getText().toString(),
                         Toast.LENGTH_SHORT).show();
             }
@@ -87,7 +93,11 @@ public class MainActivity extends Activity implements SensorEventListener
         callbacks defined in this class, and gather the sensor information as quick
         as possible*/
         sManager.registerListener(this, sManager.getDefaultSensor(Sensor.TYPE_ORIENTATION),SensorManager.SENSOR_DELAY_FASTEST);
-        endpoint.setText(StaticVariables.endpoint);
+
+        SharedPreferences sharedPref = this.getPreferences(Context.MODE_PRIVATE);
+        String val = sharedPref.getString("endpoint", "http://httpbin.org/post");
+
+        endpoint.setText(val);
     }
     //When this Activity isn't visible anymore
     @Override

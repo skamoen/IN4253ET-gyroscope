@@ -157,7 +157,7 @@ public class BackgroundListenerService extends Service implements SensorEventLis
 
                 }
 
-                // send all log file to the webservice
+                // send all log files to the webservice
                 File[] logFiles = path.listFiles(new FilenameFilter() {
                     @Override
                     public boolean accept(File dir, String filename) {
@@ -181,6 +181,7 @@ public class BackgroundListenerService extends Service implements SensorEventLis
                         Utils.postToServer(StaticVariables.endpoint, params, new OperationEventHandler() {
                             @Override
                             public void onSuccess() {
+                                // delete the file after successfully send the log to webservice
                                 eachLog.delete();
                             }
 

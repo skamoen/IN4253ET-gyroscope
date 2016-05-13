@@ -5,5 +5,4 @@ package nl.tudelft.superevilhackinglab;
  */
 public class StaticVariables {
     public static boolean isScreenOn;
-    public static String endpoint = "http://httpbin.org/post";
 }
