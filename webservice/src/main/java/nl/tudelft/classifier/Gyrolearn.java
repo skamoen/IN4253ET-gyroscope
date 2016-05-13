@@ -322,8 +322,8 @@ public class Gyrolearn {
             System.out.print("digit " + counter + ": ");
             results.add(counter - 1, new ResultPin());
 
-            for (int idx = 0; idx < p.length; idx++) {
-                results.get(counter - 1).addResult(idx, p[idx]);
+      for (int idx = 0; idx < p.length; idx++) {
+        results.get(counter - 1).addResult(idx, round(p[idx], 3));
 
                 System.out.print(p[idx] + " ");
 
