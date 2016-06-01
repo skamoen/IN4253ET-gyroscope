@@ -13,6 +13,7 @@ import java.util.Set;
  */
 @RestController
 @RequestMapping(value = "/data")
+@CrossOrigin(origins = "http://localhost:5000")
 public class DataEntryController {
 
     @Autowired
