@@ -30,14 +30,16 @@ public class GyrolearnMain {
         Evaluation eval = new Evaluation(dataset);
         eval.crossValidateModel(classifier, dataset, 10, new Random());
         System.out.println("Estimated Accuracy: "+Double.toString(eval.pctCorrect()));
-
+/*
         for(int tes=1; tes<=7; tes++){
             Instances test = Gyrolearn.loadData("D:/Data/gyro_data/test/pin1234_"+tes+".txt");
             Gyrolearn.predictPin(classifier,test);
 
 
         }
-
+*/
+        Instances test = Gyrolearn.loadData("D:/Data/gyro_data/test/pin1379.txt");
+        Gyrolearn.predictPin(classifier,test);
 
 /*
         for(int i=0; i< dataset.size(); ++i){
